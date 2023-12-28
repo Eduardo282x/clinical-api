@@ -5,7 +5,7 @@ const authenticateUser = async (req, res) =>{
         const { Username, Password } = req.body;
         const User = { Username, Password}
         const connection = await getConnection();
-        const result = await connection.query(`SELECT * FROM users WHERE Username='${Username}' and Password='${Password}'`);
+        const result = await connection.query(`SELECT users.Id, users.Name, users.Lastname, users.Username, roles.RolDes as Rol FROM users join roles on users.Rol = roles.Id_Rol WHERE Username='${Username}' and Password='${Password}'`);
         if(result.length > 0){
             try{
                 res.json({message:'Bienvenido', success: true, userData: result[0]});
