@@ -3,7 +3,8 @@ import { methods as employesControllers } from "../controllers/employes.controll
 
 const router=Router();
 
-router.post('/security', employesControllers.getSecurityKeyEmployes);
 router.get('/', employesControllers.getEmployes);
+router.post('/security', employesControllers.getSecurityKeyEmployes);
+router.post('/delete', employesControllers.deleteEmployes);
 
 export default router;

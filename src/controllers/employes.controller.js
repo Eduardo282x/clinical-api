@@ -18,7 +18,6 @@ const getSecurityKeyEmployes = async (req, res) =>{
 const queryGet =`SELECT Id,NameFull FROM ${tableName}`;
 const getEmployes = async (req, res) =>{
     try {
-        const { SecurityKey } = req.body;
         const connection = await getConnection();
         const result = await connection.query(queryGet);
         res.json(result);
@@ -29,7 +28,22 @@ const getEmployes = async (req, res) =>{
     }
 }
 
+const queryDelete =`DELETE FROM ${tableName}`;
+const deleteEmployes = async (req, res) =>{
+    try {
+        const { Id } = req.body;
+        const connection = await getConnection();
+        const result = await connection.query(`${queryDelete} where Id = '${Id}'`);
+        res.json(result);
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+
 export const methods = {
     getSecurityKeyEmployes,
-    getEmployes
+    getEmployes,
+    deleteEmployes
 };
