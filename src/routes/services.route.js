@@ -4,5 +4,6 @@ import { methods as servicesControllers } from "../controllers/services.controll
 const router=Router();
 
 router.get('/', servicesControllers.getServices);
+router.get('/avalibles', servicesControllers.getServicesAvalible);
 
 export default router;
