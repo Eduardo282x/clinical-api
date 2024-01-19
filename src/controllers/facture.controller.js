@@ -48,6 +48,32 @@ const addTempFacture = async (req, res) =>{
         res.send(err.message)
     }
 }
+const editTempFacture = async (req, res) =>{
+    const queryEditTempFacture =`UPDATE ${tableTempFacture} SET `;
+    try {
+        const connection = await getConnection();
+        const {IdUser, IdServices, Amount} = req.body;
+        const result = await connection.query(`${queryEditTempFacture} Amount='${Amount}' WHERE IdServices='${IdServices}' and IdUser='${IdUser}'`);
+        res.json({message:'Servicio modificado.', success: true});
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+const deleteTempFacture = async (req, res) =>{
+    const queryDeleteTemp =`DELETE FROM ${tableTempFacture} `;
+    try {
+        const connection = await getConnection();
+        const {IdUser, IdServices, Amount} = req.body;
+        const verify = await connection.query(`${queryDeleteTemp} WHERE IdUser = '${IdUser}' and IdServices = '${IdServices}'`);
+        res.json({message:'Servicio eliminado.', success: true});
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
 const getBanks = async (req, res) =>{
     const queryBank =`SELECT * FROM ${tableBank} ORDER BY BankName ASC`;
     try {
@@ -77,5 +103,7 @@ export const methods = {
     addTempFacture,
     getTempFacture,
     getBanks,
-    getPayMents
+    getPayMents,
+    editTempFacture,
+    deleteTempFacture
 };
