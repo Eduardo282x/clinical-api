@@ -54,7 +54,11 @@ const editTempFacture = async (req, res) =>{
         const connection = await getConnection();
         const {IdUser, IdServices, Amount} = req.body;
         const result = await connection.query(`${queryEditTempFacture} Amount='${Amount}' WHERE IdServices='${IdServices}' and IdUser='${IdUser}'`);
-        res.json({message:'Servicio modificado.', success: true});
+        if(result){
+            res.json({message:'Servicio modificado.', success: true});
+        }else {
+            res.json({message:'Error', success: false});
+        }
         }
     catch (err) {
         res.status(500)
