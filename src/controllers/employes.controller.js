@@ -1,7 +1,8 @@
 import { getConnection }  from '../database/database'
 
-const queryAssisten = 'SELECT users.NameFull,users.Identify, roles.RolDes as Rol FROM `users` join roles on users.Rol = roles.Id_Rol'
-const getEmployes = async (req, res) =>{
+const tableName = 'users'
+const queryAssisten = `SELECT users.NameFull,users.Identify, roles.RolDes as Rol FROM ${tableName} join roles on users.Rol = roles.Id_Rol`
+const getSecurityKeyEmployes = async (req, res) =>{
     try {
         const { SecurityKey } = req.body;
         const connection = await getConnection();
@@ -14,6 +15,35 @@ const getEmployes = async (req, res) =>{
     }
 }
 
+const queryGet =`SELECT Id,NameFull FROM ${tableName}`;
+const getEmployes = async (req, res) =>{
+    try {
+        const connection = await getConnection();
+        const result = await connection.query(queryGet);
+        res.json(result);
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+
+const queryDelete =`DELETE FROM ${tableName}`;
+const deleteEmployes = async (req, res) =>{
+    try {
+        const { Id } = req.body;
+        const connection = await getConnection();
+        const result = await connection.query(`${queryDelete} where Id = '${Id}'`);
+        res.json(result);
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+
 export const methods = {
+    getSecurityKeyEmployes,
     getEmployes,
+    deleteEmployes
 };
