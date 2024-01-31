@@ -32,9 +32,10 @@ const getFactures = async (req, res) =>{
 }
 const getTempFacture = async (req, res) =>{
     const queryTempFacture =`SELECT tempfacture.IdServices, tempfacture.IdFacture, services.CodService, services.Description, tempfacture.Amount, services.Cost, tempfacture.Amount * services.Cost as Total  FROM ${tableTempFacture} join services on tempfacture.IdServices = services.IdService`;
+
     const queryFacture =`SELECT IdFacture FROM ${tableName}`;
     const addFacture =`INSERT INTO ${tableName} (IdUser, IdClient, SubTotal, BankClient, Total)`;
-    const getLastFacture =`SELECT IdFacture FROM ${tableName} order by IdFacture DESC LIMIT 1;`;
+    const getLastFacture =`SELECT IdFacture FROM ${tableName} order by IdFacture DESC LIMIT 1`;
     try {
         const connection = await getConnection();
         const {IdUser, IdClient, IdFacture} = req.query;
@@ -42,8 +43,10 @@ const getTempFacture = async (req, res) =>{
 
         const getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}'`);
             
+        console.log(getFacture);
         if(getFacture && getFacture.length > 0){
             getIdFacture= getFacture[0].IdFacture;
+            console.log(getIdFacture);
         }else {
             try{
                 const createFacture = await connection.query(`${addFacture} VALUES ('${IdUser}', '${IdClient}', '0', '0', '0')`);
@@ -51,7 +54,13 @@ const getTempFacture = async (req, res) =>{
                 console.log(err);
             }
         }
-        const result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
+        let result;
+        if(getFacture && getFacture.length > 0){
+            result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}'`);
+        } else {
+            result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
+        }
+        
         const facture = getIdFacture ? getIdFacture : getLastFacture[0].IdFacture
         res.json({tempFactures: result, IdFacture: facture});
         }

@@ -9,15 +9,22 @@ const getSecurityKeyEmployes = async (req, res) =>{
         const date = new Date();
         const connection = await getConnection();
         const result = await connection.query(`${queryAssisten} WHERE SecurityKey = '${SecurityKey}'`);
-        res.json(result[0]);
-        if(result.length > 0){
-            console.log(result);
-            try{
-                const addAssistent = await connection.query(`INSERT INTO ${tableNameAssistent} (IdUser) VALUES ('${result[0].Id}')`);
+        if(result){
+            if(result.length > 0){
+                res.json(result[0]);
+                try{
+                    connection.query(`INSERT INTO ${tableNameAssistent} (IdUser) VALUES ('${result[0].Id}')`, (err, result) => {
+                        console.log(result);
+                    });
+                }
+                catch(err) {
+                    console.log(err);
+                }
+            } else {    
+                res.json({message: 'No se encontro empleado', success: false});
             }
-            catch(err) {
-                console.log(err);
-            }
+        }else {
+            res.json({message: 'Ha ocurrido un error: ', success: false});
         }
         }
     catch (err) {
