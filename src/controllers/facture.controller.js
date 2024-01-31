@@ -5,12 +5,18 @@ const tableNamePay = 'pays'
 const tableTempFacture = 'tempfacture'
 const tableBank = 'banks'
 const tablePayment = 'payments'
+
 const getFacture = async (req, res) =>{
     const queryGet =`SELECT * FROM ${tableName}`;
     try {
-        const connection = await getConnection();
-        const result = await connection.query(queryGet);
-        res.json(result);
+        const connection = getConnection();
+        connection.query(queryGet, (err, result) => {
+            if(result){
+                res.json({message: result, success: true});
+            } else {
+                res.json({message:'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         }
     catch (err) {
         res.status(500)
@@ -21,8 +27,14 @@ const getFacture = async (req, res) =>{
 const getFactures = async (req, res) =>{
     const queryFactures =`SELECT facture.IdFacture, clients.IdClients, clients.NameFull, clients.Identify, facture.DateFacture FROM ${tableName} join clients on facture.IdClient = clients.IdClients`;
     try {
-        const connection = await getConnection();
-        const result = await connection.query(`${queryFactures}`);
+        const connection = getConnection();
+        connection.query(`${queryFactures}`, (err, result) => {
+            if(result){
+                res.json(result);
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         res.json(result);
         }
     catch (err) {
@@ -35,25 +47,39 @@ const getTempFacture = async (req, res) =>{
     const queryFacture =`SELECT IdFacture FROM ${tableName}`;
     const addFacture =`INSERT INTO ${tableName} (IdUser, IdClient, SubTotal, BankClient, Total)`;
     const getLastFacture =`SELECT IdFacture FROM ${tableName} order by IdFacture DESC LIMIT 1;`;
+    const {IdUser, IdClient, IdFacture} = req.query;
+
     try {
-        const connection = await getConnection();
-        const {IdUser, IdClient, IdFacture} = req.query;
+        const connection = getConnection();
         let getIdFacture;
 
-        const getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}'`);
-            
-        if(getFacture && getFacture.length > 0){
-            getIdFacture= getFacture[0].IdFacture;
-        }else {
-            try{
-                const createFacture = await connection.query(`${addFacture} VALUES ('${IdUser}', '${IdClient}', '0', '0', '0')`);
-            } catch(err){
-                console.log(err);
+        connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}'`, (err, getFacture) => {
+            if(getFacture && getFacture.length > 0){
+                getIdFacture= getFacture[0].IdFacture;
+            }else {
+                try{
+                    connection.query(`${addFacture} VALUES ('${IdUser}', '${IdClient}', '0', '0', '0')`, (err, result) => {
+                        if(result){
+                            console.log(result);
+                        } else {
+                            console.log(err);
+                        }
+                    });
+                } catch(err){
+                    console.log(err);
+                }
             }
-        }
-        const result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
-        const facture = getIdFacture ? getIdFacture : getLastFacture[0].IdFacture
-        res.json({tempFactures: result, IdFacture: facture});
+        });
+            
+        connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`, (err, result) => {
+            if(result){
+                const facture = getIdFacture ? getIdFacture : getLastFacture[0].IdFacture
+                res.json({tempFactures: result, IdFacture: facture});
+            } else {
+                res.json({message: 'Ha ocurrido un error inesperado: ' + err, success: false});
+            }
+        });
+
         }
     catch (err) {
         res.status(500)
@@ -115,16 +141,17 @@ const getPay = async (req, res) =>{
 const deleteFacture = async (req, res) =>{
     const queryDeleteFacture =`DELETE FROM ${tableName} `;
     try {
-        const connection = await getConnection();
+        const connection = getConnection();
         const {IdFacture } = req.body;
         console.log(IdFacture);
         try{
-            const result = await connection.query(`${queryDeleteFacture} WHERE IdFacture = '${IdFacture}'`);
-            if(result){
-                res.json({message:'Factura Anulada.', success: true});
-            } else {
-                res.json({message:'Ha ocurrido un error.', success: false});
-            }
+            connection.query(`${queryDeleteFacture} WHERE IdFacture = '${IdFacture}'`, (err, result) => {
+                if(result){
+                    res.json({message:'Factura Anulada.', success: true});
+                } else {
+                    res.json({message:'Ha ocurrido un error: ' + err, success: false});
+                }
+            });
         }catch(err){
             console.log(err);
         }
@@ -138,18 +165,21 @@ const addTempFacture = async (req, res) =>{
     const queryAddTempFacture =`INSERT INTO ${tableTempFacture} (IdUser, IdServices,IdClient, Amount) VALUES`;
     const queryVerifyTemp =`SELECT * FROM ${tableTempFacture} `;
     try {
-        const connection = await getConnection();
+        const connection = getConnection();
         const {IdUser, IdServices,IdClient, Amount} = req.body;
-        const verify = await connection.query(`${queryVerifyTemp} WHERE IdUser = '${IdUser}' and IdServices = '${IdServices}' and IdClient = '${IdClient}'`);
-        if(verify && verify.length > 0){
-            return res.json({message:'El servicio ya fue agregado', success: false});
-        }
-        const result = await connection.query(`${queryAddTempFacture} ('${IdUser}','${IdServices}','${IdClient}','${Amount}')`);
-        if(result){
-            res.json({message:'Servicio agregado.', success: true});
-        } else {
-            res.json({message:'Ha ocurrido un error.', success: false});
-        }
+        connection.query(`${queryVerifyTemp} WHERE IdUser = '${IdUser}' and IdServices = '${IdServices}' and IdClient = '${IdClient}'`, (err, verify) => {
+            if(verify && verify.length > 0){
+                return res.json({message:'El servicio ya fue agregado', success: false});
+            }
+        });
+
+        connection.query(`${queryAddTempFacture} ('${IdUser}','${IdServices}','${IdClient}','${Amount}')`, (err, result) => {
+            if(result){
+                res.json({message:'Servicio agregado.', success: true});
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         }
     catch (err) {
         res.status(500)
@@ -159,14 +189,15 @@ const addTempFacture = async (req, res) =>{
 const editTempFacture = async (req, res) =>{
     const queryEditTempFacture =`UPDATE ${tableTempFacture} SET `;
     try {
-        const connection = await getConnection();
         const {IdUser, IdServices,IdClient, Amount} = req.body;
-        const result = await connection.query(`${queryEditTempFacture} Amount='${Amount}' WHERE IdServices='${IdServices}' and IdUser='${IdUser}' and IdClient = '${IdClient}'`);
-        if(result){
-            res.json({message:'Servicio modificado.', success: true});
-        }else {
-            res.json({message:'Error', success: false});
-        }
+        const connection = getConnection();
+        connection.query(`${queryEditTempFacture} Amount='${Amount}' WHERE IdServices='${IdServices}' and IdUser='${IdUser}' and IdClient = '${IdClient}'`, (err,result) => {
+            if(result){
+                res.json({message:'Servicio modificado.', success: true});
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         }
     catch (err) {
         res.status(500)
@@ -176,10 +207,15 @@ const editTempFacture = async (req, res) =>{
 const deleteTempFacture = async (req, res) =>{
     const queryDeleteTemp =`DELETE FROM ${tableTempFacture} `;
     try {
-        const connection = await getConnection();
         const {IdUser, IdServices, IdClient, Amount} = req.body;
-        const verify = await connection.query(`${queryDeleteTemp} WHERE IdUser = '${IdUser}' and IdServices = '${IdServices}' and IdClient = '${IdClient}'`);
-        res.json({message:'Servicio eliminado.', success: true});
+        const connection = getConnection();
+        connection.query(`${queryDeleteTemp} WHERE IdUser = '${IdUser}' and IdServices = '${IdServices}' and IdClient = '${IdClient}'`, (err, result) => {
+            if(result){
+                res.json({message:'Servicio eliminado.', success: true});
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         }
     catch (err) {
         res.status(500)
@@ -189,9 +225,32 @@ const deleteTempFacture = async (req, res) =>{
 const getBanks = async (req, res) =>{
     const queryBank =`SELECT * FROM ${tableBank} ORDER BY BankName ASC`;
     try {
-        const connection = await getConnection();
-        const result = await connection.query(`${queryBank}`);
-        res.json(result);
+        const connection = getConnection();
+        connection.query(`${queryBank}`,(err, result) => {
+            if(result){
+                res.json(result);
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+            });
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+const addBanks = async (req, res) =>{
+    const databanks = `(1, 'Venezuela'),(2, 'Venezolano de Crédito'),(3, 'Mercantil'),(4, 'Provincial'),(5, 'Banco del Caribe'),(6, 'Exterior'),(7, 'Caroní'),(8, 'Banesco'),(9, 'Sofitasa '),(10, 'Banco Plaza'),(11, 'Banco Fondo Común'),(12, '100% Banco'),(13, 'Tesoro'),(14, 'Bancrecer'),(15, 'Bancamiga'),(16, 'Banplus'),(17, 'Bicentenario'),(18, 'Banco Nacional de Crédito')`
+    const queryBank =`INSERT INTO ${tableBank} (IdBank, BankName) VALUES`;
+    try {
+        const connection = getConnection();
+        connection.query(`${queryBank} ${databanks}`, (err, result) => {
+            if(result){
+                res.json({message: 'Bancos agregados', success: false});
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+            });
         }
     catch (err) {
         res.status(500)
@@ -201,9 +260,14 @@ const getBanks = async (req, res) =>{
 const getPayMents = async (req, res) =>{
     const queryTempFacture =`SELECT * FROM ${tablePayment}`;
     try {
-        const connection = await getConnection();
-        const result = await connection.query(`${queryTempFacture}`);
-        res.json(result);
+        const connection = getConnection();
+        connection.query(`${queryTempFacture}`, (err, result) => {
+            if(result){
+                res.json(result);
+            } else {
+                res.json({message: 'Ha ocurrido un error: ' + err, success: false});
+            }
+        });
         }
     catch (err) {
         res.status(500)
@@ -220,5 +284,5 @@ export const methods = {
     getBanks,
     getPayMents,
     editTempFacture,
-    deleteTempFacture
+    deleteTempFacture,addBanks
 };

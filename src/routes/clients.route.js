@@ -4,6 +4,7 @@ import { methods as clientsControllers } from "../controllers/clients.controller
 const router=Router();
 
 router.get('/', clientsControllers.getClients);
+router.get('/drop', clientsControllers.deleteTable);
 router.post('/one', clientsControllers.getOneClient);
 router.post('/oneAll', clientsControllers.getAllClient);
 router.post('/add', clientsControllers.addClients);
