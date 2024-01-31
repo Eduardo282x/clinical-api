@@ -16,6 +16,23 @@ const getClients = async (req, res) =>{
     }
 }
 
+const getAllClient = async (req, res) =>{
+    const queryGet =`SELECT * FROM ${tableName}`;
+    try {
+        const {IdClients} = req.body;
+        const connection = await getConnection();
+        const result = await connection.query(`${queryGet} WHERE IdClients = '${IdClients}'`);
+        if(result.length > 0){
+            res.json(result[0]);
+        }else {
+            res.json({message: 'Cliente no encontrado.', success: false, client: result});
+        }
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
 const getOneClient = async (req, res) =>{
     const queryGet =`SELECT IdClients,NameFull,Identify FROM ${tableName}`;
     try {
@@ -70,6 +87,7 @@ const deleteClient = async (req, res) =>{
 export const methods = {
     getClients,
     addClients,
+    getAllClient,
     getOneClient,
     deleteClient
 };
