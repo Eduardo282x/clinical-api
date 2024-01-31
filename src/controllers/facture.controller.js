@@ -1,6 +1,7 @@
 import { getConnection }  from '../database/database'
 
 const tableName = 'facture'
+const tableNamePay = 'pays'
 const tableTempFacture = 'tempfacture'
 const tableBank = 'banks'
 const tablePayment = 'payments'
@@ -51,6 +52,32 @@ const getTempFacture = async (req, res) =>{
         const result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
         const facture = IdFacture ? IdFacture : getLastFacture[0].IdFacture
         res.json({tempFactures: result, IdFacture: facture});
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+const addFacture = async (req, res) =>{
+    const queryAddFacture =`INSERT INTO ${tableName} (IdUser, IdClient, SubTotal, BankClient, Total) VALUES`;
+    const queryFindFacture =`SELECT * FROM ${tableName}`;
+    const queryAddPay =`INSERT INTO ${tableNamePay} (IdFacture, Phone, Identity, IdBank, IdPayment, Ref, Total, IdClient) VALUES`;
+    try {
+        const connection = await getConnection();
+        const {IdUser,IdClient,SubTotal, BankClient,Total, Phone, Identity, IdPayment,Ref} = req.body;
+        const result = await connection.query(`${queryAddFacture} ('${IdUser}','${IdClient}','${SubTotal}','${BankClient}','${Total}')`);
+        if(result){
+            const findFacture = await connection.query(`${queryFindFacture} WHERE IdUser='${IdUser}' AND IdClient='${IdClient}'`)
+            try{
+                const addPay = await connection.query(`${queryAddPay} ('${findFacture[0].IdFacture}','${Phone}','${Identity}','${BankClient}','${IdPayment}','${Ref}','${Total}','${IdClient}' )`);
+                res.json({message:'Factura creada.', success: true});
+            }
+            catch(err){
+                res.json({message: err, success: false});
+            }
+        } else {
+            res.json({message:'Ha ocurrido un error.', success: false});
+        }
         }
     catch (err) {
         res.status(500)
@@ -137,6 +164,7 @@ const getPayMents = async (req, res) =>{
 export const methods = {
     getFactures,
     addTempFacture,
+    addFacture,
     getTempFacture,
     getBanks,
     getPayMents,
