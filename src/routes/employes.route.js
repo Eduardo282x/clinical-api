@@ -4,6 +4,11 @@ import { methods as employesControllers } from "../controllers/employes.controll
 const router=Router();
 
 router.get('/', employesControllers.getEmployes);
+router.get('/keys', employesControllers.getSecurityKeys);
+router.post('/getEmploye', employesControllers.getAllEmploye);
+router.post('/assistent', employesControllers.getAssistent);
+router.post('/add', employesControllers.addEmployes);
+router.post('/edit', employesControllers.editEmployes);
 router.post('/security', employesControllers.getSecurityKeyEmployes);
 router.post('/delete', employesControllers.deleteEmployes);
 

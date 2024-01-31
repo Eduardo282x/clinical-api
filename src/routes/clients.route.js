@@ -6,5 +6,6 @@ const router=Router();
 router.get('/', clientsControllers.getClients);
 router.post('/one', clientsControllers.getOneClient);
 router.post('/add', clientsControllers.addClients);
+router.post('/delete', clientsControllers.deleteClient);
 
 export default router;

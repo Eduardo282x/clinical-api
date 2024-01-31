@@ -40,7 +40,11 @@ const addClients = async (req, res) =>{
         const connection = await getConnection();
         const {NameFull,Identify,Birhdate,Age,PhonePrimary,PhoneSecundary,Email,Address,Sex} = req.body;
         const result = await connection.query(`${queryAdd} VALUES ('${NameFull}','${Identify}','${Birhdate}','${Age}','${PhonePrimary}','${PhoneSecundary}','${Email}','${Address}','${Sex}')`);
-        res.json({message: 'Cliente agregado exitosamente.', success: true});
+        if(result){
+            res.json({message: 'Cliente agregado exitosamente.', success: true});
+        } else {
+            res.json({message: 'Ha ocurrido un error inesperado.', success: false});
+        }
         }
     catch (err) {
         res.status(500);
@@ -49,8 +53,23 @@ const addClients = async (req, res) =>{
     }
 }
 
+const deleteClient = async (req, res) =>{
+    const queryDelete =`DELETE FROM ${tableName}`;
+    try {
+        const { Id } = req.body;
+        const connection = await getConnection();
+        const result = await connection.query(`${queryDelete} where IdClients = '${Id}'`);
+        res.json(result);
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+
 export const methods = {
     getClients,
     addClients,
     getOneClient,
+    deleteClient
 };
