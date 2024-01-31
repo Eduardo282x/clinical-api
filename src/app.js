@@ -11,7 +11,7 @@ import factureRouter from './routes/facture.route'
 const app = express();
 
 // Settings
-app.set("port",3002);
+app.set("port", process.env.PORT || 3002);
 
 // Middlewares
 app.use(morgan("dev"));
