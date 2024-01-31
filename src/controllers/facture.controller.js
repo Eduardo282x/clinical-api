@@ -33,6 +33,7 @@ const getTempFacture = async (req, res) =>{
     const queryTempFacture =`SELECT tempfacture.IdServices, tempfacture.IdFacture, services.CodService, services.Description, tempfacture.Amount, services.Cost, tempfacture.Amount * services.Cost as Total  FROM ${tableTempFacture} join services on tempfacture.IdServices = services.IdService`;
     const queryFacture =`SELECT IdFacture FROM ${tableName}`;
     const addFacture =`INSERT INTO ${tableName} (IdUser, IdClient, SubTotal, BankClient, Total)`;
+    const getLastFacture =`SELECT IdFacture FROM ${tableName} order by IdFacture DESC LIMIT 1;`;
     try {
         const connection = await getConnection();
         const {IdUser, IdClient} = req.query;
@@ -41,10 +42,15 @@ const getTempFacture = async (req, res) =>{
         if(getFacture.length > 0){
             IdFacture= getFacture[0].IdFacture;
         }else {
-            const createFacture = await connection.query(`${addFacture} VALUES ('${IdUser}', '${IdClient}',0 ,0,0`);
+            try{
+                const createFacture = await connection.query(`${addFacture} VALUES ('${IdUser}', '${IdClient}', '0', '0', '0')`);
+            } catch(err){
+                console.log(err);
+            }
         }
         const result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
-        res.json({tempFactures: result, IdFacture: IdFacture});
+        const facture = IdFacture ? IdFacture : getLastFacture[0].IdFacture
+        res.json({tempFactures: result, IdFacture: facture});
         }
     catch (err) {
         res.status(500)
