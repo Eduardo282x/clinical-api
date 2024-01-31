@@ -4,19 +4,19 @@ const queryAuthentication = 'SELECT users.Id, users.NameFull, users.Username, ro
 const authenticateUser = async (req, res) =>{
     try {
         const { Username, Password } = req.body;
-        const User = { Username, Password}
-        const connection = await getConnection();
-        const result = await connection.query(`${queryAuthentication} WHERE Username='${Username}' and Password='${Password}'`);
-        if(result.length > 0){
-            try{
-                res.json({message:'Bienvenido', success: true, userData: result[0]});
+        const connection = getConnection();
+        connection.query(`${queryAuthentication} WHERE Username='${Username}' and Password='${Password}'`, (err, result) => {
+            if(result.length > 0){
+                try{
+                    res.json({message:'Bienvenido', success: true, userData: result[0]});
+                }
+                catch(ex){
+                    console.log(ex);
+                }
+            } else {
+                res.json({message:'Usuario no encontrado', success: false});
             }
-            catch(ex){
-                console.log(ex);
-            }
-        } else {
-            res.json({message:'Usuario no encontrado', success: false});
-        }
+        });
     }
     catch (err) {
         console.log(err);
