@@ -1,6 +1,6 @@
 import { getConnection }  from '../database/database'
 
-const queryAuthentication = 'SELECT users.Id, users.Name, users.Lastname, users.NameFull, users.Username, roles.RolDes as Rol, roles.Id_Rol FROM users join roles on users.Rol = roles.Id_Rol';
+const queryAuthentication = 'SELECT users.Id, users.NameFull, users.Username, roles.RolDes as Rol, roles.Id_Rol FROM users join roles on users.Rol = roles.Id_Rol';
 const authenticateUser = async (req, res) =>{
     try {
         const { Username, Password } = req.body;
