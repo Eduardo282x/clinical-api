@@ -14,6 +14,19 @@ const getServices = async (req, res) =>{
     }
 }
 
+const updateServices = async (req, res) =>{
+    try {
+        const connection = await getConnection();
+        const {IdService, Description,Cost,Avalible} = req.body;
+        const result = await connection.query(`UPDATE ${tableName} SET Description='${Description}',Cost='${Cost}',Avalible='${Avalible}' WHERE IdService='${IdService}'`);
+        res.json(result);
+        }
+    catch (err) {
+        res.status(500)
+        res.send(err.message)
+    }
+}
+
 const getServicesAvalible = async (req, res) =>{
     const queryGetAvalible =`SELECT IdService, CodService, Description, Cost FROM ${tableName} WHERE Avalible = 1`;
     try {
@@ -29,5 +42,6 @@ const getServicesAvalible = async (req, res) =>{
 
 export const methods = {
     getServices,
+    updateServices,
     getServicesAvalible
 };
