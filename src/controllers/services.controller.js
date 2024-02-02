@@ -18,12 +18,12 @@ const updateServices = async (req, res) =>{
     try {
         const connection = await getConnection();
         const {IdService, Description,Cost,Avalible} = req.body;
-        const result = await connection.query(`UPDATE ${tableName} SET Description='${Description}',Cost='${Cost}',Avalible='${Avalible}' WHERE IdService='${IdService}'`);
-        res.json(result);
+        const result = await connection.query(`UPDATE ${tableName} SET Description='${Description}',Cost='${Cost}',Avalible='${Avalible == true ? 1 : 0}' WHERE IdService='${IdService}'`);
+        res.json({message: result, success: true});
         }
     catch (err) {
         res.status(500)
-        res.send(err.message)
+        res.send({message: err.message, success: false})
     }
 }
 

@@ -7,6 +7,7 @@ router.get('/', clientsControllers.getClients);
 router.post('/one', clientsControllers.getOneClient);
 router.post('/oneAll', clientsControllers.getAllClient);
 router.post('/add', clientsControllers.addClients);
+router.post('/update', clientsControllers.updateClients);
 router.post('/delete', clientsControllers.deleteClient);
 
 export default router;
