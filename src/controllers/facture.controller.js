@@ -44,13 +44,13 @@ const getTempFacture = async (req, res) =>{
         let result;
 
         if(IdFacture){
-            getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}' AND IdFacturate = 1`);
+            getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}'`);
             result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacture='${IdFacture}' AND IdFacturate = 1`);
             if(getFacture && getFacture.length > 0){
                 getIdFacture = getFacture[0].IdFacture;
             }
         } else {
-            getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacturate = 1`);
+            getFacture = await connection.query(`${queryFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}'`);
             result = await connection.query(`${queryTempFacture} WHERE IdUser = ${IdUser} AND IdClient = '${IdClient}' AND IdFacturate = 1`);
             if(getFacture && getFacture.length > 0){
                 getIdFacture = getFacture[0].IdFacture;
