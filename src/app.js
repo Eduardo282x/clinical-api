@@ -9,6 +9,7 @@ import ordersRouter from './routes/orders.route'
 import examsRouter from './routes/exams.route'
 import servicesRouter from './routes/services.route'
 import factureRouter from './routes/facture.route'
+import assistentRouter from './routes/assistent.route'
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/employes',employesRouter);
 app.use('/api/clients',clientsRouter);
 app.use('/api/orders',ordersRouter);
 app.use('/api/examns',examsRouter);
+app.use('/api/assistent',assistentRouter);
 app.use('/api/services',servicesRouter);
 app.use('/api/facture',factureRouter);
 

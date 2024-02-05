@@ -58,21 +58,7 @@ const getAllEmploye = async (req, res) =>{
         res.send(err.message)
     }
 }
-const getAssistent = async (req, res) =>{
-    const queryGet =`SELECT assistent.Id, users.NameFull, assistent.DateStart, assistent.DateEnd FROM ${tableNameAssistent} join ${tableName} on assistent.IdUser = users.Id`;
-    try {
-        const { DateStart, DateEnd } = req.body;
-        const parseEnd = new Date(DateEnd);
-        parseEnd.setDate(parseEnd.getDate() + 1);
-        const connection = await getConnection();
-        const result = await connection.query(`${queryGet} WHERE DateStart BETWEEN '${DateStart}' and '${parseEnd.toISOString()}'`);
-        res.json(result);
-        }
-    catch (err) {
-        res.status(500)
-        res.send(err.message)
-    }
-}
+
 const getSecurityKeys = async (req, res) =>{
     const queryKeys =`SELECT SecurityKey FROM ${tableName}`;
     try {
@@ -138,7 +124,6 @@ const deleteEmployes = async (req, res) =>{
 export const methods = {
     getSecurityKeyEmployes,
     addEmployes,
-    getAssistent,
     getSecurityKeys,
     editEmployes,
     getAllEmploye,
