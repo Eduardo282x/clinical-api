@@ -34,7 +34,7 @@ const getSecurityKeyEmployes = async (req, res) =>{
 }
 
 const getEmployes = async (req, res) =>{
-    const queryGet =`SELECT Id,NameFull FROM ${tableName}`;
+    const queryGet =`SELECT Id,NameFull FROM ${tableName} Where Rol != 1`;
     try {
         const connection = await getConnection();
         const result = await connection.query(queryGet);
