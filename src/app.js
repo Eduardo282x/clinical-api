@@ -16,7 +16,7 @@ import facturepdfRouter from './routes/facturepdf.route'
 const app = express();
 
 // Settings
-app.set("port",3002);
+app.set("port",3020);
 
 // Middlewares
 app.use(morgan("dev"));
