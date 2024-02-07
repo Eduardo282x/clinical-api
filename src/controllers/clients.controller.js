@@ -70,6 +70,24 @@ const addClients = async (req, res) =>{
     }
 }
 
+const updateClients = async (req, res) =>{
+    try {
+        const connection = await getConnection();
+        const {NameFull,Identify,Birhdate,Age,PhonePrimary,PhoneSecundary,Email,Address,Sex, IdClients} = req.body;
+        const result = await connection.query(`UPDATE ${tableName} SET NameFull='${NameFull}',Identify='${Identify}',Birhdate='${Birhdate}',Age='${Age}',PhonePrimary='${PhonePrimary}',PhoneSecundary='${PhoneSecundary}',Email='${Email}',Address='${Address}',Sex='${Sex}' WHERE IdClients='${IdClients}'`);
+        if(result){
+            res.json({message: 'Cliente editado exitosamente.', success: true});
+        } else {
+            res.json({message: 'Ha ocurrido un error inesperado.', success: false});
+        }
+        }
+    catch (err) {
+        res.status(500);
+        res.send(err.message);
+        res.json({message: 'Ah ocurrido un error inesperado.', success: false});
+    }
+}
+
 const deleteClient = async (req, res) =>{
     const queryDelete =`DELETE FROM ${tableName}`;
     try {
@@ -87,6 +105,7 @@ const deleteClient = async (req, res) =>{
 export const methods = {
     getClients,
     addClients,
+    updateClients,
     getAllClient,
     getOneClient,
     deleteClient
