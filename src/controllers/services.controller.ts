@@ -1,56 +1,90 @@
 import { Request, Response } from "express";
 import { prismaClient } from "./base.controller";
 import { BaseResponse } from "../models/base.response";
+import { services } from "../data/services.data";
+import { Services } from "../models/services.model";
 
+const responseServices: BaseResponse = {
+    message: '',
+    success: true,
+    statusCode: 200
+};
 
-const servicesAvalibles = async (req: Request, res: Response) => {
-    const avaliblesServices = await prismaClient.services.findMany(
-        {where: {avalible: true}}
+const servicesLoadData = async (req: Request, res: Response) => {
+    const loadServices = await prismaClient.services.createMany(
+        {data: services}
     );
-    res.send(avaliblesServices);
+
+    if (loadServices) {
+        responseServices.message = 'Servicios cargados exitosamente.';
+        responseServices.success = true;
+        responseServices.statusCode = 200;
+    } else {
+        responseServices.message = 'Ha ocurrido un error inesperado';
+        responseServices.success = false;
+        responseServices.statusCode = 400;
+    }
+
+    res.send(responseServices);
 }
 
 const servicesAll = async (req: Request, res: Response) => {
-    const allServices = await prismaClient.services.findMany();
+    const allServices: Services[] = await prismaClient.services.findMany();
+
     res.send(allServices);
 }
 
 const servicesCreate = async (req: Request, res: Response) => {
-    const {codService, description, cost, avalible} = req.body
+    const servicesBody: Services = req.body;
 
     const newServices = await prismaClient.services.create({
-        data: {codService: codService, description: description, cost: cost, avalible:avalible}
+        data: {
+            codService: servicesBody.codService,
+            description: servicesBody.description,
+            cost: servicesBody.cost,
+            avalible: servicesBody.avalible
+        }
     });
 
-    console.log(newServices);
-
-    const response: BaseResponse = {
-        message: 'Servicio creado exitosamente.',
-        success: true,
-        statusCode: 200
-    };
-    res.send(response);
+    if (newServices) {
+        responseServices.message = 'Servicio creado exitosamente.';
+        responseServices.success = true;
+        responseServices.statusCode = 200;
+    } else {
+        responseServices.message = 'Ha ocurrido un error inesperado';
+        responseServices.success = false;
+        responseServices.statusCode = 400;
+    }
+    res.send(responseServices);
 }
 const servicesUpdate = async (req: Request, res: Response) => {
-    const {idService, codService, description, cost, avalible} = req.body
+    const servicesBody: Services = req.body;
 
     const update = await prismaClient.services.update({
-        where: {idService: idService},
-        data: {codService: codService, description: description, cost: cost, avalible:avalible}
+        where: { idService: servicesBody.idService },
+        data: {
+            codService: servicesBody.codService,
+            description: servicesBody.description,
+            cost: servicesBody.cost,
+            avalible: servicesBody.avalible
+        }
     });
 
-    console.log(update);
+    if (update) {
+        responseServices.message = 'Servicio actualizado exitosamente.';
+        responseServices.success = true;
+        responseServices.statusCode = 200;
+    } else {
+        responseServices.message = 'Ha ocurrido un error inesperado';
+        responseServices.success = false;
+        responseServices.statusCode = 400;
+    }
 
-    const response: BaseResponse = {
-        message: 'Servicio actualizado exitosamente.',
-        success: true,
-        statusCode: 200
-    };
-    res.send(response);
+    res.send(responseServices);
 }
 
 export const servicesController = {
-    servicesAvalibles,
+    servicesLoadData,
     servicesAll,
     servicesCreate,
     servicesUpdate
